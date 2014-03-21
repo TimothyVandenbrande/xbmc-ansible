@@ -4,12 +4,12 @@
     - xbmc
   vars_prompt:
     - name: "xbmc.passwd"
-      prompt: Password"
+      prompt: "Password"
       private: true
   vars:
     - xbmc:
         user: "xbmc"
-        #repo: ppa:team-xbmc/ppa
-        repo: ppa:team-xbmc/xbmc-nightly
+        repo: "ppa:team-xbmc/xbmc-nightly"
+        resolution: "1920x1080"
   roles:
     - xbmc
