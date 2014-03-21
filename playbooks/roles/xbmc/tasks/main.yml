@@ -1,7 +1,8 @@
 ---
 - name: installing dependencies
-  apt: pkg{{ item }} state=present
+  apt: pkg={{ item }} state=present
   with_items:
+    - python-pycurl
     - python-software-properties
     - software-properties-common
   sudo: True
@@ -18,7 +19,7 @@
   sudo: True
 
 - name: fix USB autommount
-  copy: src=media-by-label-auto-mount.rules dest=/etc/udev/rules.d/media-by-label-auto-mount.rules owner=root groupt=root mode=0644
+  copy: src=media-by-label-auto-mount.rules dest=/etc/udev/rules.d/media-by-label-auto-mount.rules owner=root group=root mode=0644
   sudo: True
 
 - name: apply XBMC nice Level Permissions
@@ -68,8 +69,7 @@
   sudo: True
 
 - name: link XBMC startup script
-  file: src={{ XBMC_INIT_CONF_FILE }} dest={{ UPSTART_JOB_FILE }} owner=root group=root mode=
-0644
+  file: src={{ XBMC_INIT_CONF_FILE }} dest={{ UPSTART_JOB_FILE }} owner=root group=root mode=0644
   sudo: True
 
 - name: prepare install XBMC Bootscreen
@@ -83,7 +83,8 @@
   copy: src=plymouth-theme-xbmc-logo.deb dest=/home/{{ XBMC_USER }} owner=xbmc group=xbmc mode=0644
 
 - name: install XBMC bootsceen
-  shell: 
+  shell: "{{ item }}"
+  with_items:
     - sudo dpkg -i /home/{{ XBMC_USER }}/plymouth-theme-xbmc-logo.deb
     - update-alternatives --install /lib/plymouth/themes/default.plymouth default.plymouth /lib/plymouth/themes/xbmc-logo/xbmc-logo.plymouth 100
   sudo: True
@@ -109,7 +110,7 @@
   lineinfile: dest={{ INITRAMFS_MODULES_FILE  }} regex='uvesafb mode_option=' line='uvesafb mode_option={{ RESOLUTION }}-24 mtrr=3 scroll=ywrap' state=present
 
 - name: update screen resolution
-  shell: {{ item }}
+  shell: "{{ item }}"
   with_items:
     - update-grub
     - update-initramfs -u
@@ -162,16 +163,16 @@
     - '</advancedsettings>'
 
 - name: add Temp monitory to AdvSettings
-    lineinfile: dest={{ XBMC_ADVANCEDSETTINGS_FILE }} line={{ item }} insertafter="<advancedsettings>" state=present
+  lineinfile: dest={{ XBMC_ADVANCEDSETTINGS_FILE }} line={{ item }} insertafter="<advancedsettings>" state=present
   with_items:
     - '<gputempcommand>echo "$(nvidia-settings -c :0 -tq GPUCoreTemp) C"</gputempcommand>'
-    - '<cputempcommand>echo "$(sensors -u | head -6 |grep "temp2_input"| awk '{print $2 }' |awk '{printf("%d\n",$1 + 0.5);}') C"</cputempcommand>'
+    - "<cputempcommand>echo \"$(sensors -u | head -6 |grep \"temp2_input\"| awk '{print $2 }' |awk '{printf(\"%d\n\",$1 + 0.5);}') C\"</cputempcommand>"
 
 - name: set remote wakeup rules
   copy: src=remote_wakeup_rules dest={{ REMOTE_WAKEUP_RULES_FILE }} owner=xbmc group=xbmc mode=0644
 
 - name: optimize Installation
-  shell: {{ item }}
+  shell: "{{ item }}"
   with_items:
     - "service apparmor stop"
     - "service apparmor teardown"
@@ -190,7 +191,7 @@
     - "vm.swappiness=10"
 
 - name: cleanup
-  shell: {{ item }}
+  shell: "{{ item }}"
   with_items:
     - 'apt-get -y autoremove'
     - 'apt-get -y autoclean'

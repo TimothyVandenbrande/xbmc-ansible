@@ -9,7 +9,7 @@
   vars:
     - xbmc:
         user: "xbmc"
-        repo: "ppa:team-xbmc/xbmc-nightly"
+        repo: "deb http://ppa.launchpad.net/team-xbmc/xbmc-nightly/ubuntu saucy main "
         resolution: "1920x1080"
   roles:
     - xbmc
