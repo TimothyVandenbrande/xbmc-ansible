@@ -4,37 +4,37 @@
   with_items:
     - python-software-properties
     - software-properties-common
-  sudo: yes
+  sudo: True
 
 - name: fix Locale bug
   lineinfile: dest=/etc/environment line='{{ item }}' state=present create=yes
   with_items:
     - 'LC_MESSAGES="C"'
     - 'LC_ALL=\"en_US.UTF-8\"'
-  sudo: yes
+  sudo: True
 
 - name: fix USB automount
   lineinfile: dest=/etc/modules line="usb-storage" state=present create=yes
-  sudo: yes
+  sudo: True
 
 - name: fix USB autommount
   copy: src=media-by-label-auto-mount.rules dest=/etc/udev/rules.d/media-by-label-auto-mount.rules owner=root groupt=root mode=0644
-  sudo: yes
+  sudo: True
 
 - name: apply XBMC nice Level Permissions
   lineinfile: dest=/etc/security/limits.conf line="{{ XBMC_USER }}             -       nice            -1" state=present create=yes
-  sudo: yes
+  sudo: True
 
 - name: add user to required groups
   user: name={{ XBMC_USER }} groups="video,audio,users,fuse,cdrom,plugdev,dialout"
-  sudo: yes
+  sudo: True
 
 - name: add XBMC PPA
   apt_repository: repo='{{ XBMC_PPA }}' state=present
 
 - name: Update Ubuntu with latest packages
   apt: upgrade=dist
-  sudo: yes
+  sudo: True
 
 - include: nvidia.yml
   when: GFX_CARD == "NVIDIA"
@@ -53,31 +53,31 @@
 
 - name: install Xinit
   apt: pkg=xinit state=present
-  sudo: yes
+  sudo: True
 
 - name: install XBMC
   apt: pkg=xbmc state=present
-  sudo: yes
+  sudo: True
 
 - name: disable Autorun
   shell: update-rc.d xbmc remove
-  sudo: yes
+  sudo: True
 
 - name: replace Autorun
   copy: src=xbmc_upstart_script dest={{ XBMC_INIT_CONF_FILE }} owner=root group=root mode=0644
-  sudo: yes
+  sudo: True
 
 - name: link XBMC startup script
   file: src={{ XBMC_INIT_CONF_FILE }} dest={{ UPSTART_JOB_FILE }} owner=root group=root mode=
 0644
-  sudo: yes
+  sudo: True
 
 - name: prepare install XBMC Bootscreen
   apt: pkg={{ item }} state=present
   with_items:
     - plymouth-label
     - v86d
-  sudo: yes
+  sudo: True
 
 - name: copy bootscreen install file
   copy: src=plymouth-theme-xbmc-logo.deb dest=/home/{{ XBMC_USER }} owner=xbmc group=xbmc mode=0644
@@ -86,16 +86,16 @@
   shell: 
     - sudo dpkg -i /home/{{ XBMC_USER }}/plymouth-theme-xbmc-logo.deb
     - update-alternatives --install /lib/plymouth/themes/default.plymouth default.plymouth /lib/plymouth/themes/xbmc-logo/xbmc-logo.plymouth 100
-  sudo: yes
+  sudo: True
 
 - name: set XBMC Bootscreen
   lineinfile: dest=/etc/initramfs-tools/conf.d/splash line="FRAMEBUFFER=y" state=present
-  sudo: yes
+  sudo: True
 
 
 - name: set Screen resolution to {{ RESOLUTION }}
   shell:  sed -i '/gfxmode=/ a\  set gfxpayload=keep' '{{ GRUB_HEADER_FILE }}'
-  sudo: yes
+  sudo: True
 
 - name: set Screen resolution to {{ RESOLUTION }}
   lineinfile: dest={{ GRUB_HEADER_FILE }} line='{{ item }}' state=present
@@ -103,7 +103,7 @@
     - 'GRUB_CMDLINE_LINUX="{{ GRUB_CONFIG }}"'
     - 'GRUB_GFXMODE={{ RESOLUTION }}'
     - 'GRUB_RECORDFAIL_TIMEOUT=0'
-  sudo: yes
+  sudo: True
 
 - name: set Screen resolution to {{ RESOLUTION }}
   lineinfile: dest={{ INITRAMFS_MODULES_FILE  }} regex='uvesafb mode_option=' line='uvesafb mode_option={{ RESOLUTION }}-24 mtrr=3 scroll=ywrap' state=present
@@ -113,11 +113,11 @@
   with_items:
     - update-grub
     - update-initramfs -u
-  sudo: yes
+  sudo: True
 
 - name: reconfigure Xserver
   lineinfile: dest={{ XWRAPPER_FILE }} line="allowed_users=anybody" state=present
-  sudo: yes
+  sudo: True
 
 - name: install PowerManagement
   apt: pkg={{ item }} state=present
@@ -131,7 +131,7 @@
 
 - name: template PowerManagement
   template: custom-actions.pkla.j2 dest={{ POWERMANAGEMENT_DIR }}custom-actions.pkla
-  sudo: yes
+  sudo: True
 
 - name: install Audio
   apt: pkg={{ item }} state=present
@@ -139,21 +139,21 @@
     - linux-sound-base
     - alsa-base
     - alsa-utils
-  sudo: yes
+  sudo: True
 
 - name: up volume
   shell: amixer sset Master,0 100% 100%
 
 - name: get XBMC Addons Repositories Installer
   copy: src=plugin.program.repo.installer-1.0.5.tar.gz /home/{{ XBMC_USER }}/plugin.program.repo.installer-1.0.5.tar.gz owner={{ XBMC_USER }} group={{ XBMC_USER }} mode=0644
-  sudo: yes
+  sudo: True
 
 - name: install XBMC Addons Repositories Installer
   shell: tar -xvzf /home/{{ XBMC_USER }}/plugin.program.repo.installer-1.0.5.tar.gz -C {{ XBMC_ADDONS_DIR }}
 
 - name: install LM Sensors
   apt: pkg=lm-sensors state=present
-  sudo: yes
+  sudo: True
 
 - name: prepare Temp monitoring for AdvSettings
   lineinfile: dest={{ XBMC_ADVANCEDSETTINGS_FILE }} line={{ item }} state=present
@@ -177,11 +177,11 @@
     - "service apparmor teardown"
     - "update-rc.d -f apparmor remove"
     - "apt-get purge apparmor"
-  sudo: yes
+  sudo: True
 
 - name: template rsyslog.conf
   copy: src=rsyslog.conf dest={{ RSYSLOG_FILE }}
-  sudo: yes
+  sudo: True
 
 - name: edit sysctl.conf
   lineinfile: dest={{ SYSCTL_CONF_FILE }} line="{{ item }}" state=present
@@ -196,8 +196,8 @@
     - 'apt-get -y autoclean'
     - 'apt-get -y clean'
     - 'chown -R {{ XBMC_USER }}:{{ XBMC_USER }} /home/{{ XBMC_USER }}'
-  sudo: yes
+  sudo: True
 
 - name: reboot
   shell: reboot
-  sudo: yes
+  sudo: True
