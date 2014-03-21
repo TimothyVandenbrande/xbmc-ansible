@@ -1,0 +1,11 @@
+---
+-name: install Nvidia driver
+ apt: pkg=nvidia-current state=present
+
+#- name: Nvidia x-swat | add ppa
+#  apt_repository: repo='{{ XSWAT_PPA }}' state=present
+
+#- name: Nvidia x-swat | installing driver
+#  apt: pkg=nvidia-331 state=present
+
+
