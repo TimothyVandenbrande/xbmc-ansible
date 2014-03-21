@@ -1,4 +1,0 @@
-xbmc:
-  user: xbmc
-  #repo: ppa:team-xbmc/ppa
-  repo: ppa:team-xbmc/xbmc-nightly

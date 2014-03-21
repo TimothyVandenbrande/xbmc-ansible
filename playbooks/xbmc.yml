@@ -1,0 +1,15 @@
+---
+- name: install XBMC
+  hosts:
+    - xbmc
+  vars_prompt:
+    - name: "xbmc.passwd"
+      prompt: Password"
+      private: true
+  vars:
+    - xbmc:
+        user: "xbmc"
+        #repo: ppa:team-xbmc/ppa
+        repo: ppa:team-xbmc/xbmc-nightly
+  roles:
+    - xbmc
